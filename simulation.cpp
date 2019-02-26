@@ -2,6 +2,8 @@
 #include <utility>
 #include <cstring>
 #include <vector>
+#include <sstream>
+#include "INIReader.h"
 using namespace std;
 char** road;
 int road_length;
@@ -30,6 +32,15 @@ int auto_width=2;
 int auto_acc=1;
 int auto_maxspeed=1;
 int Simulationtime=500;
+std::string sections(INIReader &reader)
+{
+    stringstream ss;
+    set<std::string> sections = reader.Sections();
+    for (set<string>::iterator it = sections.begin(); it != sections.end(); ++it)
+        ss << *it << ",";
+    return ss.str();
+}
+
 class vehicle{	
  public :
   char type;
@@ -125,6 +136,7 @@ void print_frame(){
 
 }
 int main(){
+    
     road_length=100;
     road_width=10;
     road=new char*[road_width];
