@@ -32,13 +32,18 @@ int auto_width=2;
 int auto_acc=1;
 int auto_maxspeed=1;
 int Simulationtime=500;
-std::string sections(INIReader &reader)
+
+bool read_from_file(string filename)
 {
-    stringstream ss;
-    set<std::string> sections = reader.Sections();
-    for (set<string>::iterator it = sections.begin(); it != sections.end(); ++it)
-        ss << *it << ",";
-    return ss.str();
+	INIReader reader(filename);
+	if (reader.ParseError() < 0) {
+       			 cout << "Can't load 'test.ini'\n";
+        		 return false;
+    	}
+	else{
+		
+	}
+	
 }
 
 class vehicle{	
