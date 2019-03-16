@@ -3,6 +3,7 @@
 #include <cstring>
 #include <vector>
 #include <sstream>
+#include <list>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
@@ -41,8 +42,8 @@ int auto_acc=1;
 int auto_maxspeed=1;
 int Simulationtime=500;
 string current;
-
-
+int vehicle_count=-1;
+tuple <String,int,int,int,int,string> list_of_vehicle[10]; //tuple of <name,length,width,speed,acc,colour>
 class vehicle{  
  public :
   char type;
@@ -50,43 +51,22 @@ class vehicle{
   int vehicle_width;
   int vehicle_speed;
   int vehicle_acc;
-  string color;
+  String color;
   bool brake;
   int x1,y1,x2,y2;
-  vehicle(char type,string color){
+  vehicle(String type,String color){
     this->type=type;
     this->color=color;
     this->brake=false;
-    if(type=='C'){
-      this->vehicle_length=car_length;
-      this->vehicle_width =car_width;
-      this->vehicle_speed =car_maxspeed;
-      this->vehicle_acc   =car_acc;
-    }
-    else if(type=='T'){
-      this->vehicle_length=truck_length;
-      this->vehicle_width =truck_width;
-      this->vehicle_speed =truck_maxspeed;
-      this->vehicle_acc   =truck_acc;
-    }
-    else if(type=='B'){
-      this->vehicle_length=bus_length;
-      this->vehicle_width =bus_width;
-      this->vehicle_speed =bus_maxspeed;
-      this->vehicle_acc   =bus_acc;
-    }
-    else if(type=='b'){
-      this->vehicle_length=bike_length;
-      this->vehicle_width =bike_width;
-      this->vehicle_speed =bike_maxspeed;
-      this->vehicle_acc   =bike_acc;
-    }
-    else if(type=='A'){
-      this->vehicle_length=auto_length;
-      this->vehicle_width =auto_width;
-      this->vehicle_speed =auto_maxspeed;
-      this->vehicle_acc   =auto_acc;
-    }
+    int xx=0;
+    while(get<0>(list_of_vehicle[xx])!=type)
+          xx++;
+    
+    this->vehicle_length = get<1>(list_of_vehicle[xx]);
+    this->vehicle_width = get<2>(list_of_vehicle[xx]);
+    this->vehicle_speed = get<3>(list_of_vehicle[xx]);
+    this->vehicle_acc = get<4>(list_of_vehicle[xx]);
+
     this->x1=abs(rand()%(road_width-vehicle_width+1))+1;
     this->y1=-1;
     this->y2=-vehicle_length;
@@ -161,53 +141,30 @@ void parseLine(const string &line, configs &conf)
       default_acc  = stoi(tokens[2]);
   if(token[0]== "Vehicle_Type")
   {
+      vehicle_count++;
       current = token[3];
+      get<0>(list_of_vehicle[vehicle_count]) = current;
+      get<3>(list_of_vehicle[vehicle_count]) = default_maxspeed;
+      get<4>(list_of_vehicle[vehicle_count]) = default_acc;
   }
   if(token[0]="Vehicle_Length")
   {
-      if(current = "Car")
-        car_length = stoi(tokens[2]);
-      if(current = "bike")
-        bike_length = stoi(tokens[2]);
-      if(current = "Bus")
-        bus_length = stoi(tokens[2]);
-      if(current = "Truck")
-        truck_length = stoi(tokens[2]);
+      get<1>(list_of_vehicle[vehicle_count])= stoi(token[2]);
   }
   if(token[0]="Vehicle_Width")
   {
-     if(current = "Car")
-        car_width = stoi(tokens[2]);
-      if(current = "bike")
-        bike_width = stoi(tokens[2]);
-      if(current = "Bus")
-        bus_width = stoi(tokens[2]);
-      if(current = "Truck")
-        truck_width = stoi(tokens[2]);
+      get<2>(list_of_vehicle[vehicle_count])= stoi(token[2]);
   }
   if(token[0]="Vehicle_MaxSpeed")
   {
-      if(current = "Car")
-        car_maxspeed = stoi(tokens[2]);
-      if(current = "bike")
-        bike_maxspeed = stoi(tokens[2]);
-      if(current = "Bus")
-        bus_maxspeed = stoi(tokens[2]);
-      if(current = "Truck")
-        truck_maxspeed = stoi(tokens[2]);
+      get<3>(list_of_vehicle[vehicle_count])= stoi(token[2]);
   }
   if(token[0]="Vehicle_Acceleration")
   {
-      if(current = "Car")
-        car_acc = stoi(tokens[2]);
-      if(current = "bike")
-        bike_acc = stoi(tokens[2]);
-      if(current = "Bus")
-        bus_acc = stoi(tokens[2]);
-      if(current = "Truck")
-        truck_acc = stoi(tokens[2]);
+      get<4>(list_of_vehicle[vehicle_count])= stoi(token[2]);
+
   }
-}
+} 
 
 
 int main(){
@@ -248,15 +205,15 @@ int main(){
       if(i%4==0){
         int x=abs(rand()%5);
             if(x==0)
-            automobiles.push_back(vehicle('T',"Green"));
+            automobiles.push_back(vehicle("Truck","Green"));
             else if(x==1)
-            automobiles.push_back(vehicle('C',"Green"));
+            automobiles.push_back(vehicle("Car","Green"));
           else if(x==2)
-            automobiles.push_back(vehicle('B',"Green"));
+            automobiles.push_back(vehicle("Bus","Green"));
           else if(x==3)
-            automobiles.push_back(vehicle('b',"Green"));
+            automobiles.push_back(vehicle("bike","Green"));
           else 
-            automobiles.push_back(vehicle('A',"Green"));
+            automobiles.push_back(vehicle("","Green"));
       }
     cout<<"TIME ==>"<<i<<endl;
     make_frame();
