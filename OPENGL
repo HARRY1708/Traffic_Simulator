@@ -1,0 +1,197 @@
+#include <iostream>
+#include <utility>
+#include <cstring>
+#include <vector>
+#include <stdlib.h>
+#include <math.h>
+#include <GL/glut.h>
+#include <GL/gl.h>
+#include "constants.h"
+//#include "vehicle.h"
+using namespace std;
+class vehicle{  
+ public :
+  char type;
+  int vehicle_length;
+  int vehicle_width;
+  int vehicle_speed;
+  int vehicle_acc;
+  string color;
+  bool brake;
+  float x1,y1,x2,y2;
+  vehicle(char type,string color){
+    this->type=type;
+    this->color=color;
+    this->brake=false;
+    if(type=='C'){
+      this->vehicle_length=car_length;
+      this->vehicle_width =car_width;
+      this->vehicle_speed =car_maxspeed;
+      this->vehicle_acc   =car_acc;
+    }
+    else if(type=='T'){
+      this->vehicle_length=truck_length;
+      this->vehicle_width =truck_width;
+      this->vehicle_speed =truck_maxspeed;
+      this->vehicle_acc   =truck_acc;
+    }
+    else if(type=='B'){
+      this->vehicle_length=bus_length;
+      this->vehicle_width =bus_width;
+      this->vehicle_speed =bus_maxspeed;
+      this->vehicle_acc   =bus_acc;
+    }
+    else if(type=='b'){
+      this->vehicle_length=bike_length;
+      this->vehicle_width =bike_width;
+      this->vehicle_speed =bike_maxspeed;
+      this->vehicle_acc   =bike_acc;
+    }
+    else if(type=='A'){
+      this->vehicle_length=auto_length;
+      this->vehicle_width =auto_width;
+      this->vehicle_speed =auto_maxspeed;
+      this->vehicle_acc   =auto_acc;
+    }
+    this->x1=abs(rand()%(road_width-vehicle_width+1))+1;
+    this->y1=-1;
+    this->y2=-vehicle_length;
+    this->x2=x1+vehicle_width-1;
+    }
+  // int closest_distance(){
+  //  for(int i=y1+1;i<road_length;i++){
+  //    for(int j=x1;j<=x2;j++){
+  //      if(road[j][i]!=' ')
+  //        return (i-y1); 
+  //    }
+  //  }
+  //  return 100000000;
+  // }
+void update(){
+    int cdist =100000;//closest_distance()-1;
+    if((y1>road_signal_distance&&y2<road_signal_distance)&&road_signal)
+    {
+
+    }
+    else
+    {y1=y1+min(vehicle_speed,cdist)*0.1;
+    y2=y2+min(vehicle_speed,cdist)*0.1;
+    }
+  }
+};
+
+vector<vehicle> automobiles;
+
+void spinDisplay ()          // ORIGINAL FUNCTION
+{   
+  for(int i=0;i<automobiles.size();i++){
+    automobiles[i].update();
+    if(automobiles[i].y2>road_length)
+      automobiles.erase(automobiles.begin()+i);
+    }
+
+  if(T==100){
+      road_signal=true;
+     automobiles.push_back( vehicle ('C',"Blue"));
+    }
+   if(T==300){
+      road_signal=true;
+     automobiles.push_back(vehicle('C',"Silver"));
+    } 
+    if(T==800){
+      road_signal=false;
+    } 
+    T++;
+    glutPostRedisplay();
+   
+}
+
+void display()
+{
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(gray);
+    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glBegin(GL_POLYGON);
+        glVertex2f(-1.0,-rl*road_width/2);
+        glVertex2f(-1.0,rl*road_width/2);
+        glVertex2f(1.0,rl*road_width/2);
+        glVertex2f(1.0,-rl*road_width/2);
+    glEnd();
+   for(int p=0;-rl*road_width/2+p*0.015+0.015<rl*road_width/2;p=p+4){
+   glColor3f(white);
+    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glBegin(GL_POLYGON);
+        glVertex2f(-0.01,-rl*road_width/2+p*0.015);
+        glVertex2f(-0.01,-rl*road_width/2+p*0.015+0.015);
+        glVertex2f(0.01,-rl*road_width/2+p*0.015+0.015);
+        glVertex2f(0.01,-rl*road_width/2+p*0.015);
+    glEnd();
+   }
+    // glColor3f(black);
+    // glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    //  glBegin(GL_LINES);
+    //     glVertex2f(-1.0+rl*road_signal_distance,-rl*road_width/2);
+    //     glVertex2f(-1.0+rl*road_signal_distance,rl*road_width/2);
+    // glEnd();
+
+    glColor3f(yellow);
+    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glBegin(GL_POLYGON);
+        glVertex2f(0.075,.775);
+        glVertex2f(0.075,0.625);
+        glVertex2f(-0.075,0.625);
+        glVertex2f(-0.075,0.775);
+    glEnd();
+if(road_signal)
+    glColor3f(red);
+ else
+   glColor3f(green);
+    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glBegin(GL_POLYGON);
+        glVertex2f(0.05,.75);
+        glVertex2f(0.05,0.65);
+        glVertex2f(-0.05,0.65);
+        glVertex2f(-0.05,0.75);
+    glEnd();
+
+  for(int i=0;i<automobiles.size();i++){ 
+     if(automobiles[i].color=="Yellow")
+     glColor3f(yellow);
+     else if(automobiles[i].color=="Blue")
+     glColor3f(blue); 
+     else if(automobiles[i].color=="Red")
+      glColor3f(red);
+     else if(automobiles[i].color=="Green")
+      glColor3f(green);
+     else if(automobiles[i].color=="White")
+      glColor3f(white);
+     else if(automobiles[i].color=="Black")
+      glColor3f(black);
+     else if(automobiles[i].color=="Silver")
+     glColor3f(silver);
+    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    // cout<<automobiles[i].x1*rw<<" "<<automobiles[i].x2*rw<<" "<<automobiles[i].y2*rl<<" "<<automobiles[i].y1*rl<<" "<<automobiles.size()<<endl;
+    glBegin(GL_POLYGON);
+        glVertex2f(-1.0+automobiles[i].y1*rl,automobiles[i].x1*rl-rl*road_width/2);
+        glVertex2f(-1.0+automobiles[i].y2*rl,automobiles[i].x1*rl-rl*road_width/2);
+        glVertex2f(-1.0+automobiles[i].y2*rl,automobiles[i].x2*rl-rl*road_width/2);
+        glVertex2f(-1.0+automobiles[i].y1*rl,automobiles[i].x2*rl-rl*road_width/2);
+        
+    glEnd();
+   }
+    glFlush();
+    glutSwapBuffers ();
+}
+
+int main(int argc, char** argv)
+{
+    glutInit(&argc,argv);
+    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(10000,10000);
+    glutInitWindowPosition(100,100);
+    glutCreateWindow("TRAFFIC_SIMULATOR");
+    glutDisplayFunc(display);
+    glutIdleFunc (spinDisplay);
+    glutMainLoop();
+}
