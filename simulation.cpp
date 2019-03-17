@@ -23,10 +23,11 @@ int default_maxspeed;
 int default_acc;
 int Simulationtime=500;
 bool start_simulation;
-bool end_bool;5141
+bool end_bool;
 string current;
 int vehicle_count=-1;
-vector<tuple<string,string,int>> road_vehicle;   //vehicle type,colour,to_wait_for
+tuple <string,string,int> temp;
+list <tuple< string , string ,int > > road_vehicle;   //vehicle type,colour,to_wait_for
 tuple <string,int,int,int,int,string> list_of_vehicle[10]; //tuple of <name,length,width,speed,acc,colour>
 class vehicle{  
  public :
@@ -116,6 +117,7 @@ void parseLine(const string &line)
   for (Tokenizer::iterator iter = tokenizer.begin(); iter != tokenizer.end(); iter++)
     tokens.push_back(*iter);
   //cout << tokens[0]<< endl;
+  cout << tokens[0] <<endl;
   if (tokens[0] == "Road_Id")
       Road_Id= stoi(tokens[2]);
   if (tokens[0] == "Road_Length")
@@ -155,27 +157,49 @@ void parseLine(const string &line)
   }
   if(tokens[0]=="START")
   {
-      road_vehicle.push_back(<"start","start",0>)
+    get<0>(temp)="start";
+      get<1>(temp)="start";
+      get<2>(temp)=0;
+      road_vehicle.push_back(temp);
   }
-  if(tokens[0]="Signal")
+  if(tokens[0]=="Signal")
   {
-    if(tokens[1]="RED"){
-      road_vehicle.push_back(<"red","red",0>);
+    if(tokens[1]=="RED"){
+      get<0>(temp)="red";
+      get<1>(temp)="red";
+      get<2>(temp)=0;
+      road_vehicle.push_back(temp);
     }
-    else
-      road_vehicle.push_back(<"green","green",0>); 
+    else{
+      get<0>(temp)="green";
+      get<1>(temp)="green";
+      get<2>(temp)=0;
+      road_vehicle.push_back(temp); 
+    }
+
   }
-  for(int i=0;i<vehicle_count;i++){
+  for(int i=0;i<=vehicle_count;i++){
     if(tokens[0]==get<0>(list_of_vehicle[i]))
     {
-      road_vehicle.push_back(<tokens[0],tokens[1],1>);
+      get<0>(temp)=tokens[0];
+      get<1>(temp)=tokens[1];
+      get<2>(temp)=1;
+      road_vehicle.push_back(temp);
     }
   }
-  if(tokens[0]="pass"){
-    road_vehicle.push_back(<"pass","pass",15>);
+  if(tokens[0]=="Pass"){
+    get<0>(temp)="pass";
+    get<1>(temp)="pass";
+    get<2>(temp)=stoi(tokens[1]);
+    road_vehicle.push_back(temp);
   }
-  if(tokens[0]="END")
+  if(tokens[0]=="END"){
+     get<0>(temp)="end";
+      get<1>(temp)="end";
+      get<2>(temp)=0;
+      road_vehicle.push_back(temp);
     end_bool=true;
+  }
 
 } 
 
@@ -216,14 +240,18 @@ int main(){
             road[i][j]=' ';
         } 
     }
+    tuple<string,string,int> check2;
     tuple<string,string,int> check;
-    check = road_vehicle.pop_front();
+    check = road_vehicle.front();
+    road_vehicle.pop_front();
     if(get<0>(check)=="start")
           start_simulation= true;            
     if(start_simulation){
 
-            for(int i=0;i<Simulationtime && ;i++){
-                check = road_vehicle.pop_front();
+            for(int i=0;i<Simulationtime ;i++){
+                check = road_vehicle.front();
+                road_vehicle.pop_front();
+                cout << get<0>(check) << get<2>(check) << endl;
                 if(get<0>(check)=="red")
                   road_signal=false;
                 else if(get<0>(check)=="green")
@@ -234,20 +262,23 @@ int main(){
 
                   }
                   else{
-                    road_vehicle.push_front(get<0>(check),get<0>(check),get<2>(check)-1);
+                    get<0>(check2)=get<0>(check);
+                    get<1>(check2)=get<0>(check);
+                    get<2>(check2)=get<2>(check)-1;
+                    road_vehicle.push_front(check2);
                   }
                 }
                 else if(get<0>(check)=="end")
                 {
-                    if(road_empty()){
+                    if(automobiles.size()==0){
                       break;
                     }
-                    road_vehicle.push_front(get<0>(check),get<0>(check),get<2>(check));
+                    road_vehicle.push_front(check);
                 }
                 else{
-                  int j;
-                   for(j=0;j<vehicle_count;j++){
-                      if(get<0>(list_of_vehicle[j])=get<0>(check))
+                  
+                   for(int j=0;j<vehicle_count;j++){
+                      if(get<0>(list_of_vehicle[j])==get<0>(check))
                         automobiles.push_back(vehicle(get<0>(check),get<1>(check)));
                    }
                 }
