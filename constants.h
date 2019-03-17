@@ -3,7 +3,8 @@
 #include <list>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include "constants.h"
+using namespace std;
+using namespace boost;
 #define blue 0.0,0.0,1.0
 #define green 0.0,1.0,.0
 #define red 1.0,0.0,0.0
@@ -53,3 +54,5 @@ int vehicle_count=-1;
 tuple <string,string,int> temp;
 list <tuple< string , string ,int > > road_vehicle;   //vehicle type,colour,to_wait_for
 tuple <string,int,int,int,int,string> list_of_vehicle[10]; //tuple of <name,length,width,speed,acc,colour>
+tuple<string,string,int> check2;
+    tuple<string,string,int> check;
